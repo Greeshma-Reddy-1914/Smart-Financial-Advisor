@@ -4,26 +4,32 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const advisorRoutes = require('./routes/advisor');
 
-const app = express();
+const app = express(); // ✅ Move this above route use statements
 
-// Middleware
-app.use(cors());
+// ✅ Proper CORS setup for credentials
+app.use(cors({
+  origin: 'http://localhost:3000', // Only allow React frontend
+  credentials: true                // Allow cookies, auth headers
+}));
+
 app.use(express.json());
+
+// ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/advisor', advisorRoutes);
 
-
-// Sample route
+// ✅ Sample route
 app.get('/', (req, res) => {
   res.send('Server is running...');
 });
 
-// Start server after DB connection
+// ✅ DB Connection + Server Start
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true

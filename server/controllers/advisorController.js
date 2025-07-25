@@ -1,5 +1,3 @@
-// controllers/advisorController.js
-
 const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
@@ -14,10 +12,10 @@ exports.getAdvice = async (req, res) => {
     }
 
     // Load market data
-    const marketDataPath = path.join(__dirname, '../../market_data.json');
+    const marketDataPath = path.join(__dirname, '../data/market_data.json');
     const marketData = JSON.parse(fs.readFileSync(marketDataPath, 'utf-8'));
 
-    // Allocation logic
+    // Allocation logic based on risk
     let allocation;
     if (profile.risk === 'High') {
       allocation = { stocks: 70, mutualFunds: 20, fixedDeposits: 10 };
@@ -45,7 +43,7 @@ exports.getAdvice = async (req, res) => {
       allocation,
       expectedReturn: expectedReturn.toFixed(2),
       explanation,
-      marketData,
+      marketData
     });
 
   } catch (err) {

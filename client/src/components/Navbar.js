@@ -10,7 +10,10 @@ const Navbar = () => {
       <div>
         <Link to="/" style={navStyle}>Home</Link>
         {!isAuthenticated && (
-          <Link to="/login" style={navStyle}>Login</Link>
+          <>
+            <Link to="/login" style={navStyle}>Login</Link>
+            <Link to="/register" style={navStyle}>Register</Link>
+          </>
         )}
         <Link to="/profile" style={navStyle}>Profile</Link>
         <Link to="/analysis" style={navStyle}>Analysis</Link>

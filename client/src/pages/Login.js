@@ -9,22 +9,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post('/api/auth/login', formData);
-      login(res.data.token);
-      navigate('/profile');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
-    }
-  };
-
   const inputStyle = {
     width: '100%',
     padding: '10px',
@@ -34,6 +18,26 @@ const Login = () => {
     border: '1px solid #ccc',
     fontSize: '16px',
     boxSizing: 'border-box'
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post('/api/auth/login', formData);
+
+      const { user } = res.data;
+      const token = user.token;
+
+      login(user, token);
+      navigate('/profile');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed');
+    }
   };
 
   return (
