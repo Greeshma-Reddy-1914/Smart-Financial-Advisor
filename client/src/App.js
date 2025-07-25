@@ -1,26 +1,33 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
-import SignIn from './pages/SignIn';
-import Dashboard from './pages/Dashboard';
-import Recommendations from './pages/Recommendations';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Profile from './pages/Profile';
+import Analysis from './pages/Analysis';
+import Navbar from './components/Navbar';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-const isAuthenticated = () => !!localStorage.getItem('token');
-
-const App = () => {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/dashboard" element={isAuthenticated() ? <Dashboard /> : <Navigate to="/signin" />} />
-        <Route path="/recommendations" element={isAuthenticated() ? <Recommendations /> : <Navigate to="/signin" />} />
-      </Routes>
-    </Router>
-  );
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
 };
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/analysis" element={<PrivateRoute><Analysis /></PrivateRoute>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
 
 export default App;
