@@ -8,28 +8,30 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const advisorRoutes = require('./routes/advisor');
+const chatRoutes = require('./routes/chatRoutes'); // ✅ ADDED
 
-const app = express(); // ✅ Move this above route use statements
+const app = express();
 
-// ✅ Proper CORS setup for credentials
+// ✅ Proper CORS setup
 app.use(cors({
-  origin: 'http://localhost:3000', // Only allow React frontend
-  credentials: true                // Allow cookies, auth headers
+  origin: 'http://localhost:3000',
+  credentials: true
 }));
 
 app.use(express.json());
 
-// ✅ Routes
+// ✅ Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/advisor', advisorRoutes);
+app.use('/api/chat', chatRoutes); // ✅ ADDED
 
-// ✅ Sample route
+// ✅ Root Route
 app.get('/', (req, res) => {
   res.send('Server is running...');
 });
 
-// ✅ DB Connection + Server Start
+// ✅ Connect to MongoDB and Start Server
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true

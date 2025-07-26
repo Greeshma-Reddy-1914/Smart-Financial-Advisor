@@ -68,7 +68,7 @@ const Analysis = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const botMessage = { role: 'bot', text: res.data.reply };
+      const botMessage = { role: 'bot', text: res.data.response };
       setChatMessages(prev => [...prev, botMessage]);
     } catch (err) {
       console.error('Chat error:', err);
