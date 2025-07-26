@@ -44,7 +44,10 @@ MONGO_URI = mongodb://127.0.0.1:27017/smart-financial-advisor
 JWT_SECRET = my$uper$ecretKey123!
 ```
 This connects the app to your local MongoDB instance.
-Make sure MongoDB is installed and running on your system.
+Make sure MongoDB is installed and running on your system. </br>
+If is is not installed follow this guide to install it. </br>
+https://www.youtube.com/watch?v=tC49Nzm6SyM
+</br>Install mongodb Compass too unlike mentioned in this video.
 
 ### 4.4 Run the App in Two Terminals
 **Terminal 1 — Start Backend Server**
