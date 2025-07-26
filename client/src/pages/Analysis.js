@@ -14,6 +14,7 @@ const Analysis = () => {
   const [recommendation, setRecommendation] = useState(null);
   const [error, setError] = useState(null);
   const reportRef = useRef(null);
+  const chatEndRef = useRef(null);
 
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
@@ -55,27 +56,37 @@ const Analysis = () => {
     });
   };
 
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const sendChat = async () => {
     if (!chatInput.trim()) return;
     const userMessage = { role: 'user', text: chatInput };
-    setChatMessages(prev => [...prev, userMessage]);
+    setChatMessages((prev) => [...prev, userMessage]);
     setChatLoading(true);
     setChatInput('');
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('/api/chat', { message: chatInput }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.post(
+        '/api/chat',
+        { message: chatInput },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       const botMessage = { role: 'bot', text: res.data.response };
-      setChatMessages(prev => [...prev, botMessage]);
+      setChatMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       console.error('Chat error:', err);
-      const errorMsg = { role: 'bot', text: 'Sorry, something went wrong. Please try again.' };
-      setChatMessages(prev => [...prev, errorMsg]);
+      const errorMsg = {
+        role: 'bot',
+        text: 'Sorry, something went wrong. Please try again.'
+      };
+      setChatMessages((prev) => [...prev, errorMsg]);
     } finally {
       setChatLoading(false);
+      scrollToBottom();
     }
   };
 
@@ -171,7 +182,7 @@ const Analysis = () => {
       <div className="mt-12 p-6 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
         <h3 className="text-2xl font-bold mb-4 text-center text-indigo-700">Ask Our Advisor Anything</h3>
 
-        <div className="h-64 overflow-y-auto bg-white rounded-md p-4 mb-4 border border-gray-200">
+        <div className="h-64 overflow-y-auto bg-white rounded-md p-4 mb-4 border border-gray-200 flex flex-col">
           {chatMessages.length === 0 ? (
             <p className="text-gray-500 text-center">No messages yet. Start a conversation!</p>
           ) : (
@@ -179,13 +190,16 @@ const Analysis = () => {
               <div
                 key={index}
                 className={`mb-2 p-2 rounded-md max-w-xl ${
-                  msg.role === 'user' ? 'bg-indigo-100 self-end text-right ml-auto' : 'bg-gray-200 text-left'
+                  msg.role === 'user'
+                    ? 'bg-indigo-100 self-end text-right ml-auto'
+                    : 'bg-gray-200 text-left'
                 }`}
               >
                 {msg.text}
               </div>
             ))
           )}
+          <div ref={chatEndRef} />
         </div>
 
         <div className="flex gap-2">
