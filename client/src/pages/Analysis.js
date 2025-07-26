@@ -15,6 +15,10 @@ const Analysis = () => {
   const [error, setError] = useState(null);
   const reportRef = useRef(null);
 
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatLoading, setChatLoading] = useState(false);
+
   useEffect(() => {
     const fetchRecommendation = async () => {
       try {
@@ -51,11 +55,35 @@ const Analysis = () => {
     });
   };
 
+  const sendChat = async () => {
+    if (!chatInput.trim()) return;
+    const userMessage = { role: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatLoading(true);
+    setChatInput('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post('/api/chat', { message: chatInput }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const botMessage = { role: 'bot', text: res.data.reply };
+      setChatMessages(prev => [...prev, botMessage]);
+    } catch (err) {
+      console.error('Chat error:', err);
+      const errorMsg = { role: 'bot', text: 'Sorry, something went wrong. Please try again.' };
+      setChatMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="text-center mt-10">
         <h2 className="text-xl font-semibold mb-4">Unlock personalized investment insights!</h2>
-        <Link to="/login" className="bg-blue-600 text-white px-4 py-2 rounded mr-4">Login/</Link>
+        <Link to="/login" className="bg-blue-600 text-white px-4 py-2 rounded mr-4">Login</Link>
         <Link to="/register" className="bg-green-600 text-white px-4 py-2 rounded">Register</Link>
       </div>
     );
@@ -105,7 +133,7 @@ const Analysis = () => {
           </PieChart>
         </div>
 
-        {/* Recommendation Summary Box */}
+        {/* Recommendation Box */}
         <div className="bg-gray-50 border border-blue-200 rounded-md p-6 mx-auto mb-10 text-center shadow-sm max-w-3xl">
           <p className="text-lg text-gray-700 mb-4">
             Based on your investment profile, we recommend the following allocation:
@@ -122,15 +150,14 @@ const Analysis = () => {
             </div>
           </div>
 
-          {/* Only one expected return line */}
           <p className="mt-4 text-lg font-semibold text-indigo-700">
             📌 Expected Annual Return: <span className="text-green-600 font-bold">{expectedReturn}%</span>
           </p>
         </div>
       </div>
 
-      {/* Download Button */}
-      <div className="flex justify-center mt-6 mb-6">
+      {/* Download PDF */}
+      <div className="flex justify-center mt-6 mb-10">
         <button
           onClick={handleDownload}
           className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-lg font-semibold px-8 py-3 rounded-full shadow-md transition-all duration-300"
@@ -138,6 +165,46 @@ const Analysis = () => {
           <FaDownload className="text-xl" />
           Download Report
         </button>
+      </div>
+
+      {/* Chat Window */}
+      <div className="mt-12 p-6 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+        <h3 className="text-2xl font-bold mb-4 text-center text-indigo-700">Ask Our Advisor Anything</h3>
+
+        <div className="h-64 overflow-y-auto bg-white rounded-md p-4 mb-4 border border-gray-200">
+          {chatMessages.length === 0 ? (
+            <p className="text-gray-500 text-center">No messages yet. Start a conversation!</p>
+          ) : (
+            chatMessages.map((msg, index) => (
+              <div
+                key={index}
+                className={`mb-2 p-2 rounded-md max-w-xl ${
+                  msg.role === 'user' ? 'bg-indigo-100 self-end text-right ml-auto' : 'bg-gray-200 text-left'
+                }`}
+              >
+                {msg.text}
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            placeholder="Type your question here..."
+            className="flex-1 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            onKeyDown={(e) => e.key === 'Enter' && sendChat()}
+          />
+          <button
+            onClick={sendChat}
+            disabled={chatLoading}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-semibold"
+          >
+            {chatLoading ? 'Sending...' : 'Send'}
+          </button>
+        </div>
       </div>
     </div>
   );
